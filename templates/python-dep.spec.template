@@ -1,0 +1,56 @@
+
+# rpmbuild -bb SPECS/maven.spec --define '_topdir '`pwd` -v --clean
+
+Name:       %{prefix_name}%{template_name}
+Version:    %{template_version}
+Release:    %{template_release}
+Summary:    %{template_name}
+Group:      python-deps
+License:    http://www.tid.es
+Packager:   carlosg@tid.es
+Source0:    %{template_url}
+BuildArch:  x86_64
+BuildRoot:  %{_topdir}/BUILDROOT
+Vendor:     tid.es
+%define __os_install_post    \
+    /usr/lib/rpm/redhat/brp-compress \
+    %{!?__debug_package:/usr/lib/rpm/redhat/brp-strip %{__strip}} \
+    /usr/lib/rpm/redhat/brp-strip-static-archive %{__strip} \
+    /usr/lib/rpm/redhat/brp-strip-comment-note %{__strip} %{__objdump} \
+    %{!?__jar_repack:/usr/lib/rpm/redhat/brp-java-repack-jars} \
+%{nil}
+
+%description
+%{template_name}
+%setup 
+
+
+%build
+
+
+%install
+%{__mkdir_p} $RPM_BUILD_ROOT/%{python_dir}
+export PYTHONUSERBASE=$RPM_BUILD_ROOT/%{python_dir}
+if [ -f  %{_sourcedir}/%{template_name}-%{version}.tar.gz ]; then
+    tar xvfz %{_sourcedir}/%{template_name}-%{version}.tar.gz
+else
+    unzip %{_sourcedir}/%{template_name}-%{version}.zip
+fi
+cd %{template_name}-%{version}
+mkdir -p $PYTHONUSERBASE/lib/python%{python_version}/site-packages/
+%{python_bin} setup.py install --prefix $PYTHONUSERBASE
+easy_install_file=$PYTHONUSERBASE/lib/python%{python_version}/site-packages/easy-install.pth
+[ -f $easy_install_file ] && mv $easy_install_file $PYTHONUSERBASE/lib/python%{python_version}/site-packages/%{name}.pth
+find $PYTHONUSERBASE
+%clean
+[ %{buildroot} != "/" ] && rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root,-)
+%{python_dir}
+
+
+
+%changelog
+

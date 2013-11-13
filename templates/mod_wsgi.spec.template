@@ -1,0 +1,47 @@
+
+# rpmbuild -bb SPECS/maven.spec --define '_topdir '`pwd` -v --clean
+
+Name:       %{template_name}
+Version:    %{template_version}
+Release:    %{template_release}
+Summary:    %{template_name}
+Group:      python-deps
+License:    http://www.tid.es
+Packager:   carlosg@tid.es
+Source0:    %{template_url}
+BuildArch:  x86_64
+BuildRoot:  %{_topdir}/BUILDROOT
+Vendor:     tid.es
+
+
+%description
+%{template_name}
+%prep
+%{__mkdir_p} $RPM_BUILD_ROOT/%{python_dir}
+export PYTHONUSERBASE=$RPM_BUILD_ROOT/%{python_dir}
+tar xvfz %{_sourcedir}/%{name}-%{version}.tar.gz
+echo $PWD
+cd %{name}-%{version}
+./configure --with-apxs=/usr/sbin/apxs \
+      --with-python=%{python_bin}
+make
+%setup 
+
+
+%build
+
+
+%install
+
+%clean
+[ %{buildroot} != "/" ] && rm -rf %{buildroot}
+
+
+%files
+%defattr(-,root,root,-)
+%{python_dir}
+
+
+
+%changelog
+
